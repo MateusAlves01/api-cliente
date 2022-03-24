@@ -8,8 +8,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ClienteService {
@@ -27,8 +26,18 @@ public class ClienteService {
         return clienteResponseDTO;
     }
 
-    public List<ClienteResponseDTO> listarClientes(){
-        List<Cliente> clienteList =  (List<Cliente>)clienteRepository.findAll();
+    public List<ClienteResponseDTO> listarClientes(String nome) {
+
+        List<Cliente> clienteList = null;
+
+        if (nome == null ) {
+            clienteList = (List<Cliente>) clienteRepository.findAll();
+        } else {
+            clienteList = (List<Cliente>)clienteRepository.findByNomeContainingIgnoreCase(nome);
+        }
+
+        Collections.sort(clienteList, Comparator.comparing(Cliente::getNome));
+
         List<ClienteResponseDTO> clienteResponseDTOList = new ArrayList<>();
         clienteList.forEach(cliente -> {
           ClienteResponseDTO clienteResponseDTO = modelMapper.map(cliente, ClienteResponseDTO.class);
