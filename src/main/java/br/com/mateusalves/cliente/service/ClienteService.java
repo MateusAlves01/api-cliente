@@ -20,10 +20,25 @@ public class ClienteService {
     private ModelMapper modelMapper;
 
     public ClienteResponseDTO criar(ClienteRequestDTO clienteRequestDTO){
-        Cliente cliente = modelMapper.map(clienteRequestDTO, Cliente.class);
-        Cliente clienteSalvo = clienteRepository.save(cliente);
-        ClienteResponseDTO clienteResponseDTO = modelMapper.map(clienteSalvo, ClienteResponseDTO.class);
-        return clienteResponseDTO;
+//        Cliente cliente = modelMapper.map(clienteRequestDTO, Cliente.class);
+        Cliente cliente =  Cliente.builder()
+                .cpf(clienteRequestDTO.getCpf())
+                .nome(clienteRequestDTO.getNome())
+                .sobrenome(clienteRequestDTO.getSobrenome())
+                .email(clienteRequestDTO.getEmail())
+                .ddd(clienteRequestDTO.getDdd())
+                .telefone(clienteRequestDTO.getTelefone())
+                .build();
+         Cliente clienteSalvo = clienteRepository.save(cliente);
+//            return  modelMapper.map(clienteSalvo, ClienteResponseDTO.class);
+        return ClienteResponseDTO.builder()
+                .cpf(cliente.getCpf())
+                .nome(cliente.getNome())
+                .sobrenome(cliente.getSobrenome())
+                .email(cliente.getEmail())
+                .ddd(cliente.getDdd())
+                .telefone(cliente.getTelefone())
+                .build();
     }
 
     public List<ClienteResponseDTO> listarClientes(String nome) {
@@ -36,12 +51,20 @@ public class ClienteService {
             clienteList = (List<Cliente>)clienteRepository.findByNomeContainingIgnoreCase(nome);
         }
 
-        Collections.sort(clienteList, Comparator.comparing(Cliente::getNome));
+        Collections.sort(clienteList, Comparator.comparing(Cliente::getNome)); //Listar em ordem alfabetica
 
         List<ClienteResponseDTO> clienteResponseDTOList = new ArrayList<>();
         clienteList.forEach(cliente -> {
-          ClienteResponseDTO clienteResponseDTO = modelMapper.map(cliente, ClienteResponseDTO.class);
-          clienteResponseDTOList.add(clienteResponseDTO);
+
+              ClienteResponseDTO clienteResponseDTO = ClienteResponseDTO.builder()
+                    .cpf(cliente.getCpf())
+                    .nome(cliente.getNome())
+                    .sobrenome(cliente.getSobrenome())
+                    .email(cliente.getEmail())
+                    .telefone(cliente.getTelefone())
+                    .build();
+            //ClienteResponseDTO clienteResponseDTO = modelMapper.map(cliente, ClienteResponseDTO.class); 44 a 49
+          clienteResponseDTOList.add(clienteResponseDTO); //Adiciona a lista no clienteResponseDTO
         });
         return clienteResponseDTOList;
     }

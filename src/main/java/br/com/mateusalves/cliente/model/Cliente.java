@@ -1,27 +1,28 @@
 package br.com.mateusalves.cliente.model;
 
-import com.sun.istack.NotNull;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.Min;
 
+@ToString
 @Getter
 @Setter
 @Builder
-@Entity
+@Entity //Uma Tabela no banco de Dados.
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "cliente")
+@Table(name = "cliente") //NOme da tabela
 public class Cliente {
 
     @Id
-    @SequenceGenerator(name = "cliente_sequece", sequenceName = "cliente_sequece", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
     private String nome;
+
+    @Column(nullable = false)
+    private String sobrenome;
 
     @Column(nullable = false, unique = true ,length = 11)
     private String cpf;

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class ClienteResponseDTO {
 
     private String nome;
+    private String sobrenome;
     private String cpf;
     private String email;
     private String ddd;
