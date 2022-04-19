@@ -15,7 +15,7 @@ import javax.persistence.*;
 public class Cliente {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(nullable = false)
@@ -35,4 +35,11 @@ public class Cliente {
 
     @Column(length = 50)
     private String telefone;
+
+    @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private Endereco endereco;
+
+
+
 }

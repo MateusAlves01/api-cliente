@@ -2,7 +2,9 @@ package br.com.mateusalves.cliente.service;
 
 import br.com.mateusalves.cliente.dto.ClienteRequestDTO;
 import br.com.mateusalves.cliente.dto.ClienteResponseDTO;
+import br.com.mateusalves.cliente.dto.EnderecoDTO;
 import br.com.mateusalves.cliente.model.Cliente;
+import br.com.mateusalves.cliente.model.Endereco;
 import br.com.mateusalves.cliente.repository.ClienteRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+
+import javax.transaction.Transactional;
 import java.util.*;
 
 @Service
@@ -22,6 +26,7 @@ public class ClienteService {
     private ModelMapper modelMapper;
 
     @CacheEvict(value = "clientes", allEntries = true)
+    @Transactional
     public ClienteResponseDTO criar(ClienteRequestDTO clienteRequestDTO){
 //        Cliente cliente = modelMapper.map(clienteRequestDTO, Cliente.class);
         Cliente cliente =  Cliente.builder()
@@ -33,6 +38,17 @@ public class ClienteService {
                 .telefone(clienteRequestDTO.getTelefone())
                 .build();
          Cliente clienteSalvo = clienteRepository.save(cliente);
+         clienteSalvo.setEndereco(Endereco.builder()
+                 .id(clienteSalvo.getId())
+                 .cliente(clienteSalvo)
+                 .cep(clienteRequestDTO.getEndereco().getCep())
+                 .cidade(clienteRequestDTO.getEndereco().getCidade())
+                 .uf(clienteRequestDTO.getEndereco().getUf())
+                 .logradouro(clienteRequestDTO.getEndereco().getLogradouro())
+                 .complemento(clienteRequestDTO.getEndereco().getComplemento())
+                 .referencia(clienteRequestDTO.getEndereco().getReferencia())
+                 .numero(clienteRequestDTO.getEndereco().getNumero())
+                 .build());
 //            return  modelMapper.map(clienteSalvo, ClienteResponseDTO.class);
         return ClienteResponseDTO.builder()
                 .cpf(cliente.getCpf())
@@ -41,9 +57,17 @@ public class ClienteService {
                 .email(cliente.getEmail())
                 .ddd(cliente.getDdd())
                 .telefone(cliente.getTelefone())
+                .endereco(EnderecoDTO.builder()
+                        .cep(clienteSalvo.getEndereco().getCep())
+                        .cidade(clienteSalvo.getEndereco().getCidade())
+                        .uf(clienteSalvo.getEndereco().getUf())
+                        .logradouro(clienteSalvo.getEndereco().getLogradouro())
+                        .complemento(clienteSalvo.getEndereco().getComplemento())
+                        .referencia(clienteSalvo.getEndereco().getReferencia())
+                        .numero(clienteSalvo.getEndereco().getNumero())
+                        .build())
                 .build();
     }
-
     @Cacheable("clientes")
     public List<ClienteResponseDTO> listarClientes(String nome) {
 
