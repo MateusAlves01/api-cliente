@@ -13,12 +13,11 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class ClienteResponseDTO {
 
-    private String nome;
-    private String sobrenome;
+    private String nomeCompleto;
+//    private String sobrenome;
     private String cpf;
     private String email;
     private String ddd;
     private String telefone;
     private EnderecoDTO endereco;
-
 }

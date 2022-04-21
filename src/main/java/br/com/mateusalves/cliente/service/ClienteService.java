@@ -31,8 +31,8 @@ public class ClienteService {
 //        Cliente cliente = modelMapper.map(clienteRequestDTO, Cliente.class);
         Cliente cliente =  Cliente.builder()
                 .cpf(clienteRequestDTO.getCpf())
-                .nome(clienteRequestDTO.getNome())
-                .sobrenome(clienteRequestDTO.getSobrenome())
+                .nome(clienteRequestDTO.getNomeCompleto())
+                .sobrenome(clienteRequestDTO.getNomeCompleto())
                 .email(clienteRequestDTO.getEmail())
                 .ddd(clienteRequestDTO.getDdd())
                 .telefone(clienteRequestDTO.getTelefone())
@@ -52,8 +52,8 @@ public class ClienteService {
 //            return  modelMapper.map(clienteSalvo, ClienteResponseDTO.class);
         return ClienteResponseDTO.builder()
                 .cpf(cliente.getCpf())
-                .nome(cliente.getNome())
-                .sobrenome(cliente.getSobrenome())
+                .nomeCompleto(cliente.getNome())
+//                .nomeCompleto(cliente.getSobrenome())
                 .email(cliente.getEmail())
                 .ddd(cliente.getDdd())
                 .telefone(cliente.getTelefone())
@@ -86,8 +86,8 @@ public class ClienteService {
 
               ClienteResponseDTO clienteResponseDTO = ClienteResponseDTO.builder()
                     .cpf(cliente.getCpf())
-                    .nome(cliente.getNome())
-                    .sobrenome(cliente.getSobrenome())
+                    .nomeCompleto(cliente.getNome())
+//                    .sobrenome(cliente.getSobrenome())
                     .email(cliente.getEmail())
                     .telefone(cliente.getTelefone())
                     .build();
@@ -128,5 +128,27 @@ public class ClienteService {
         //Parse
         modelMapper.map(clienteRequestDTO, cliente);
         clienteRepository.save(cliente);
+    }
+    private Cliente convertCliente(ClienteRequestDTO clienteRequestDTO) {
+        return modelMapper.map(clienteRequestDTO, Cliente.class);
+    }
+
+    //Passagem de valor dos Objetos por referencia
+    private void setNomeSobreNome(ClienteRequestDTO clienteRequestDTO, Cliente cliente) {
+        int delimitadorIndex = clienteRequestDTO.getNomeCompleto().indexOf(" ");
+        String nome = clienteRequestDTO.getNomeCompleto().substring(0, delimitadorIndex);
+        String sobrenome = clienteRequestDTO.getNomeCompleto().substring(delimitadorIndex+1, clienteRequestDTO.getNomeCompleto().length());
+
+        cliente.setNome(nome);
+        cliente.setSobrenome(sobrenome);
+    }
+
+    private ClienteResponseDTO convertClienteResponseDTO(Cliente clienteSalvo) {
+        ClienteResponseDTO clienteResponseDTO = modelMapper.map(clienteSalvo, ClienteResponseDTO.class);
+
+        clienteResponseDTO.setNomeCompleto(clienteSalvo.getNome() + " " + clienteSalvo.getSobrenome());
+        clienteResponseDTO.setEmail(clienteSalvo.getEmail());
+
+        return clienteResponseDTO;
     }
 }
