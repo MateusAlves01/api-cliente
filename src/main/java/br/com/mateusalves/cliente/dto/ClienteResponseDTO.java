@@ -14,9 +14,8 @@ import javax.validation.constraints.NotNull;
 public class ClienteResponseDTO {
 
     private String nomeCompleto;
-//    private String sobrenome;
     private String cpf;
-    private String email;
+    private String enderecoEletronico;
     private String ddd;
     private String telefone;
     private EnderecoDTO endereco;

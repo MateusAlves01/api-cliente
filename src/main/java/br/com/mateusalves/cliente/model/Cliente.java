@@ -18,10 +18,10 @@ public class Cliente {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "nome", nullable = false)
     private String nome;
 
-    @Column(nullable = false)
+    @Column(name = "sobrenome", nullable = false)
     private String sobrenome;
 
     @Column(nullable = false, unique = true ,length = 11)
@@ -39,7 +39,6 @@ public class Cliente {
     @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private Endereco endereco;
-
 
 
 }

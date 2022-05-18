@@ -74,17 +74,15 @@ public class ClienteServiceTest {
 
         this.clienteRequestDTO= ClienteRequestDTO.builder()
                 .cpf("888.236.123.12")
-                .nome("Marcelo")
-                .sobrenome("Alves")
+                .nomeCompleto("Marcelo")
                 .email("ariel.01@gmail.com")
                 .telefone("9936542331")
                 .build();
 
         this.clienteResponseDTO = ClienteResponseDTO.builder()
                 .cpf("888.236.123.12")
-                .nome("Marcelo")
-                .sobrenome("Alves")
-                .email("ariel.01@gmail.com")
+                .nomeCompleto("Marcelo")
+                .enderecoEletronico("ariel.01@gmail.com")
                 .telefone("9936542331")
                 .build();
 

@@ -6,13 +6,15 @@ spring:
     password: mateus
 
   jpa:
-      properties:
-        hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
-      hibernate.ddl-auto: update
-      hibernate:
-        jdbc: time_zone = TimeZone
-      show-sql: true
-      format_sql: true
+    hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
+    hibernate.ddl-auto: update
+    hibernate:
+      jdbc: time_zone = TimeZone
+    show-sql: true
+    format_sql: true
+
+  jackson:
+    default-property-inclusion: NON_NULL
 
 server:
   port: 8090

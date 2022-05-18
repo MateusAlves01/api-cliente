@@ -1,9 +1,7 @@
 package br.com.mateusalves.cliente.dto;
 
-import br.com.mateusalves.cliente.model.Cliente;
 import lombok.*;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
 @Getter

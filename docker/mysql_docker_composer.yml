@@ -28,5 +28,3 @@ volumes:
 networks:
   clientes-compose-network:
     driver: bridge
-    #docker-composer -f mysql_docker_compeser -up -d
-    #caso da erro utiliza o mesmo o codigo acima e um --force recreate

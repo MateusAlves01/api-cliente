@@ -19,8 +19,10 @@ public class ClienteController {
 
     @PostMapping
     public ClienteResponseDTO criar(@Validated @RequestBody ClienteRequestDTO clienteRequestDTO){
+
         ClienteResponseDTO clienteSalvo = clienteService.criar(clienteRequestDTO);
         return clienteSalvo;
+
     }
 
     @GetMapping

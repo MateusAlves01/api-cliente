@@ -6,15 +6,19 @@ import br.com.mateusalves.cliente.dto.EnderecoDTO;
 import br.com.mateusalves.cliente.model.Cliente;
 import br.com.mateusalves.cliente.model.Endereco;
 import br.com.mateusalves.cliente.repository.ClienteRepository;
+import br.com.mateusalves.cliente.utils.TextoUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ClienteService {
@@ -25,92 +29,71 @@ public class ClienteService {
     @Autowired
     private ModelMapper modelMapper;
 
+    public static final String ESPACO = " ";
+    public static final int ZERO = 0;
+
     @CacheEvict(value = "clientes", allEntries = true)
     @Transactional
     public ClienteResponseDTO criar(ClienteRequestDTO clienteRequestDTO){
-//        Cliente cliente = modelMapper.map(clienteRequestDTO, Cliente.class);
-        Cliente cliente =  Cliente.builder()
-                .cpf(clienteRequestDTO.getCpf())
-                .nome(clienteRequestDTO.getNomeCompleto())
-                .sobrenome(clienteRequestDTO.getNomeCompleto())
-                .email(clienteRequestDTO.getEmail())
-                .ddd(clienteRequestDTO.getDdd())
-                .telefone(clienteRequestDTO.getTelefone())
-                .build();
-         Cliente clienteSalvo = clienteRepository.save(cliente);
-         clienteSalvo.setEndereco(Endereco.builder()
-                 .id(clienteSalvo.getId())
-                 .cliente(clienteSalvo)
-                 .cep(clienteRequestDTO.getEndereco().getCep())
-                 .cidade(clienteRequestDTO.getEndereco().getCidade())
-                 .uf(clienteRequestDTO.getEndereco().getUf())
-                 .logradouro(clienteRequestDTO.getEndereco().getLogradouro())
-                 .complemento(clienteRequestDTO.getEndereco().getComplemento())
-                 .referencia(clienteRequestDTO.getEndereco().getReferencia())
-                 .numero(clienteRequestDTO.getEndereco().getNumero())
-                 .build());
-//            return  modelMapper.map(clienteSalvo, ClienteResponseDTO.class);
-        return ClienteResponseDTO.builder()
-                .cpf(cliente.getCpf())
-                .nomeCompleto(cliente.getNome())
-//                .nomeCompleto(cliente.getSobrenome())
-                .email(cliente.getEmail())
-                .ddd(cliente.getDdd())
-                .telefone(cliente.getTelefone())
-                .endereco(EnderecoDTO.builder()
-                        .cep(clienteSalvo.getEndereco().getCep())
-                        .cidade(clienteSalvo.getEndereco().getCidade())
-                        .uf(clienteSalvo.getEndereco().getUf())
-                        .logradouro(clienteSalvo.getEndereco().getLogradouro())
-                        .complemento(clienteSalvo.getEndereco().getComplemento())
-                        .referencia(clienteSalvo.getEndereco().getReferencia())
-                        .numero(clienteSalvo.getEndereco().getNumero())
-                        .build())
-                .build();
+
+        Cliente cliente = convertCliente(clienteRequestDTO);
+
+        Cliente clienteSalvo = clienteRepository.save(cliente);
+
+        clienteSalvo.setEndereco(Endereco.builder()
+                .id(clienteSalvo.getId())
+                .cliente(clienteSalvo)
+                .cep(clienteRequestDTO.getEndereco().getCep())
+                .cidade(clienteRequestDTO.getEndereco().getCidade())
+                .logradouro(clienteRequestDTO.getEndereco().getLogradouro())
+                .uf(clienteRequestDTO.getEndereco().getUf())
+                .referencia(clienteRequestDTO.getEndereco().getReferencia())
+                .numero(clienteRequestDTO.getEndereco().getNumero())
+                .complemento(clienteRequestDTO.getEndereco().getComplemento())
+                .build());
+
+        return convertClienteResponseDTO(clienteSalvo);
     }
+
     @Cacheable("clientes")
-    public List<ClienteResponseDTO> listarClientes(String nome) {
+    public List<ClienteResponseDTO> listarClientes(String nome){
 
         List<Cliente> clienteList = null;
 
-        if (nome == null ) {
-            clienteList = (List<Cliente>) clienteRepository.findAll();
+        if(nome == null) {
+            clienteList = (List<Cliente>)clienteRepository.findAll();
         } else {
             clienteList = (List<Cliente>)clienteRepository.findByNomeContainingIgnoreCase(nome);
         }
 
-        Collections.sort(clienteList, Comparator.comparing(Cliente::getNome)); //Listar em ordem alfabetica
+        Collections.sort(clienteList, Comparator.comparing(Cliente::getNome));
 
         List<ClienteResponseDTO> clienteResponseDTOList = new ArrayList<>();
-        clienteList.forEach(cliente -> {
 
-              ClienteResponseDTO clienteResponseDTO = ClienteResponseDTO.builder()
-                    .cpf(cliente.getCpf())
-                    .nomeCompleto(cliente.getNome())
-//                    .sobrenome(cliente.getSobrenome())
-                    .email(cliente.getEmail())
-                    .telefone(cliente.getTelefone())
-                    .build();
-            //ClienteResponseDTO clienteResponseDTO = modelMapper.map(cliente, ClienteResponseDTO.class); 44 a 49
-          clienteResponseDTOList.add(clienteResponseDTO); //Adiciona a lista no clienteResponseDTO
+        clienteList.forEach(cliente -> {
+            ClienteResponseDTO clienteResponseDTO = convertClienteResponseDTO(cliente);
+            clienteResponseDTOList.add(clienteResponseDTO);
         });
         return clienteResponseDTOList;
     }
 
     @Cacheable("clientes")
     public ClienteResponseDTO consultarPorCpf(String cpf) {
-        Cliente cliente = clienteRepository.findByCpf(cpf);
-        return modelMapper.map(cliente, ClienteResponseDTO.class);
+        cpf = TextoUtils.removerCaracterEspecial(cpf);
+        if (!TextoUtils.contemTexto(cpf)) {
+            Cliente cliente = clienteRepository.findByCpf(cpf);
+            return modelMapper.map(cliente, ClienteResponseDTO.class);
+        }
+        return null;
     }
 
     @CacheEvict(value = "clientes", allEntries = true)
     public void deletarCliente(String email) throws Exception {
         Cliente cliente = clienteRepository.findByEmail(email);
         if (cliente == null) {
-            throw new Exception("Cliete não encontrado. Verifique o Email digitado.");
+            throw new Exception("Cliente não encontrado. Verifique o Email digitado.");
         }
         clienteRepository.deleteById(cliente.getId());
-
     }
 
     @Cacheable("clientes")
@@ -123,20 +106,29 @@ public class ClienteService {
     public void atualizarCliente(ClienteRequestDTO clienteRequestDTO, String email) throws Exception {
         Cliente cliente = clienteRepository.findByEmail(email);
         if(cliente == null){
-            throw new Exception("Cliete não encontrado.");
+            throw new Exception("Cliente não encontrado.");
         }
-        //Parse
         modelMapper.map(clienteRequestDTO, cliente);
         clienteRepository.save(cliente);
     }
+
+
     private Cliente convertCliente(ClienteRequestDTO clienteRequestDTO) {
-        return modelMapper.map(clienteRequestDTO, Cliente.class);
+        clienteRequestDTO.setCpf(TextoUtils.removerCaracterEspecial(clienteRequestDTO.getCpf()));
+        Cliente cliente = modelMapper.map(clienteRequestDTO, Cliente.class);
+        setNomeSobreNome(clienteRequestDTO, cliente);
+        cliente.setEndereco(null);
+
+
+        return cliente;
+
+
+
     }
 
-    //Passagem de valor dos Objetos por referencia
     private void setNomeSobreNome(ClienteRequestDTO clienteRequestDTO, Cliente cliente) {
-        int delimitadorIndex = clienteRequestDTO.getNomeCompleto().indexOf(" ");
-        String nome = clienteRequestDTO.getNomeCompleto().substring(0, delimitadorIndex);
+        int delimitadorIndex = clienteRequestDTO.getNomeCompleto().indexOf(ESPACO);
+        String nome = clienteRequestDTO.getNomeCompleto().substring(ZERO, delimitadorIndex);
         String sobrenome = clienteRequestDTO.getNomeCompleto().substring(delimitadorIndex+1, clienteRequestDTO.getNomeCompleto().length());
 
         cliente.setNome(nome);
@@ -146,9 +138,19 @@ public class ClienteService {
     private ClienteResponseDTO convertClienteResponseDTO(Cliente clienteSalvo) {
         ClienteResponseDTO clienteResponseDTO = modelMapper.map(clienteSalvo, ClienteResponseDTO.class);
 
-        clienteResponseDTO.setNomeCompleto(clienteSalvo.getNome() + " " + clienteSalvo.getSobrenome());
-        clienteResponseDTO.setEmail(clienteSalvo.getEmail());
 
+        clienteResponseDTO.setNomeCompleto(clienteSalvo.getNome() + ESPACO + clienteSalvo.getSobrenome());
+        clienteResponseDTO.setEnderecoEletronico(clienteSalvo.getEmail());
+        clienteResponseDTO.setCpf(TextoUtils.adicionarMascaraCPF(clienteResponseDTO.getCpf()));
+        clienteResponseDTO.setEndereco(EnderecoDTO.builder()
+                .complemento(clienteSalvo.getEndereco().getComplemento())
+                .numero(clienteSalvo.getEndereco().getNumero())
+                .referencia(clienteSalvo.getEndereco().getReferencia())
+                .uf(clienteSalvo.getEndereco().getUf())
+                .cep(clienteSalvo.getEndereco().getCep())
+                .logradouro(clienteSalvo.getEndereco().getLogradouro())
+                .cidade(clienteSalvo.getEndereco().getCidade())
+                .build());
         return clienteResponseDTO;
     }
 }
