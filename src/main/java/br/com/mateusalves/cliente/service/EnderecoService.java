@@ -1,13 +1,16 @@
 package br.com.mateusalves.cliente.service;
 
-import br.com.mateusalves.cliente.dto.EnderecoDTO;
+import br.com.mateusalves.cliente.dto.EnderecoRequestDTO;
+import br.com.mateusalves.cliente.dto.EnderecoResponseDTO;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Service
 public interface EnderecoService {
 
-    EnderecoDTO findByClienteCpf(String cpf);
+    EnderecoRequestDTO findByCpfCliente(String cpf);
 
-    EnderecoDTO findByClienteEmail(String email);
+    EnderecoRequestDTO findByEmailCliente(String email);
+
+    EnderecoResponseDTO updateEnderecoByCpfCliente(String cpf, EnderecoRequestDTO enderecoRequestDTO) throws  Exception;
+
 }

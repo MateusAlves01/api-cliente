@@ -2,7 +2,7 @@ package br.com.mateusalves.cliente.service;
 
 import br.com.mateusalves.cliente.dto.ClienteRequestDTO;
 import br.com.mateusalves.cliente.dto.ClienteResponseDTO;
-import br.com.mateusalves.cliente.dto.EnderecoDTO;
+import br.com.mateusalves.cliente.dto.EnderecoRequestDTO;
 import br.com.mateusalves.cliente.model.Cliente;
 import br.com.mateusalves.cliente.model.Endereco;
 import br.com.mateusalves.cliente.repository.ClienteRepository;
@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ClienteService {
@@ -142,7 +141,7 @@ public class ClienteService {
         clienteResponseDTO.setNomeCompleto(clienteSalvo.getNome() + ESPACO + clienteSalvo.getSobrenome());
         clienteResponseDTO.setEnderecoEletronico(clienteSalvo.getEmail());
         clienteResponseDTO.setCpf(TextoUtils.adicionarMascaraCPF(clienteResponseDTO.getCpf()));
-        clienteResponseDTO.setEndereco(EnderecoDTO.builder()
+        clienteResponseDTO.setEndereco(EnderecoRequestDTO.builder()
                 .complemento(clienteSalvo.getEndereco().getComplemento())
                 .numero(clienteSalvo.getEndereco().getNumero())
                 .referencia(clienteSalvo.getEndereco().getReferencia())

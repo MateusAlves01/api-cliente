@@ -10,5 +10,12 @@ public interface EnderecoRepository extends JpaRepository<Endereco, Long> {
             JOIN Cliente c ON ec.id = c.id
             WHERE c.email = :email
             """)
-    Endereco findByClienteEmail(String email);
+    Endereco findByEmailCliente(String email);
+
+    @Query("""
+            FROM Endereco ec
+            JOIN Cliente c ON ec.id = c.id
+            WHERE c.cpf = :cpf
+            """)
+    Endereco findByCpfCliente(String cpf);
 }

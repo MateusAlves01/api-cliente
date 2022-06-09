@@ -9,7 +9,7 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EnderecoDTO {
+public class EnderecoRequestDTO {
 
     @NotBlank(message = " Cidade não pode ser nulo ou invalido!")
     private String cidade;
